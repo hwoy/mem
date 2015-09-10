@@ -1,4 +1,8 @@
+#define MEM_VERSION_MAJOR 1
+#define MEM_VERSION_MINOR 0
+#define MEM_VERSION_SUBMINOR 1
 
+static const char MEM_VERSION_STR[]="1.0.0";
 
 void *mm_init (unsigned int nblock);
 
