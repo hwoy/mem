@@ -18,7 +18,7 @@ mm_malloc (memman * mm, unsigned int size)
 void
 mm_freeall (memman * mm)
 {
-  linklist *tmp;
+  memlist *tmp;
 
   mm->current = mm->begin;
   while (mm->current)
@@ -29,9 +29,9 @@ mm_freeall (memman * mm)
       free (tmp->ptr);
       free (tmp);
     }
-  mm->begin = (linklist *) 0;
-  mm->end = (linklist *) 0;
-  mm->current = (linklist *) 0;
+  mm->begin = (memlist *) 0;
+  mm->end = (memlist *) 0;
+  mm->current = (memlist *) 0;
 }
 
 
@@ -39,7 +39,7 @@ mm_freeall (memman * mm)
 int
 mm_free (memman * mm, void *sptr)
 {
-  linklist *tmp2;
+  memlist *tmp2;
   tmp2 = mm->current;
   for (mm->current = mm->begin; mm->current; mm->current = mm->current->forw)
     {
