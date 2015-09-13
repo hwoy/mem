@@ -1,100 +1,56 @@
 #include <stdlib.h>
 #include "mem.h"
 
-static void **ptr;
-static int block, allocblock, setup = 0;
 
-void *
-mm_init (unsigned int nblock)
+memman *
+mm_init (memman * mm)
 {
-  if (setup)
-    {
-      mm_freesys ();
-    }
-  if ((ptr = malloc (sizeof (void *) * nblock)) != NULL)
-    {
-      setup = 1;
-      allocblock = 0;
-      block = nblock;
-    }
-  return ptr;
+
+  return l2_init (mm, 0);
 }
 
 void *
-mm_malloc (unsigned int size)
+mm_malloc (memman * mm, unsigned int size)
 {
-  unsigned int i;
-  if (setup && (allocblock < block))
+  return (l2_add (mm, l2_new ())->ptr = malloc (size));
+}
+
+void
+mm_freeall (memman * mm)
+{
+  linklist *tmp;
+
+  mm->current = mm->begin;
+  while (mm->current)
     {
-      *(ptr + allocblock) = (void *) malloc (size);
-      i = allocblock;
-      if (*(ptr + allocblock) != NULL)
-	allocblock++;
-      return *(ptr + i);
+      tmp = mm->current;
+      mm->current = mm->current->forw;
+
+      free (tmp->ptr);
+      free (tmp);
     }
-  return NULL;
+  mm->begin = (linklist *) 0;
+  mm->end = (linklist *) 0;
+  mm->current = (linklist *) 0;
 }
 
-void
-mm_freeall (void)
+
+
+int
+mm_free (memman * mm, void *sptr)
 {
-  unsigned int i;
-  for (i = 0; i < allocblock; i++)
+  linklist *tmp2;
+  tmp2 = mm->current;
+  for (mm->current = mm->begin; mm->current; mm->current = mm->current->forw)
     {
-      free (*(ptr + i));
-    }
-  allocblock = 0;
-}
-
-void
-mm_freesys (void)
-{
-  mm_freeall ();
-  mm_freeinit ();
-}
-
-unsigned int
-mm_getsetup (void)
-{
-  return setup;
-}
-
-void
-mm_free (void *sptr)
-{
-  unsigned int i, flag;
-  flag = 0;
-  if (allocblock)
-    {
-      for (i = 0; i < allocblock; i++)
+      if (mm->current->ptr == sptr)
 	{
-	  if (*(ptr + i) == sptr)
-	    {
-	      free (sptr);
-	      flag = 1;
-	      break;
-	    }
+	  l2_delete (mm, mm->current->id);
+	  free (sptr);
+	  return 1;
 	}
-
-      for (i++; i < allocblock; i++)
-	{
-	  *(ptr + i - 1) = *(ptr + i);
-	}
-      if (flag)
-	allocblock--;
     }
 
-}
-
-void
-mm_freeinit (void)
-{
-  if (setup)
-    {
-      free (ptr);
-      block = 0;
-      setup = 0;
-      allocblock = 0;
-    }
-
+  mm->current = tmp2;
+  return 0;
 }
