@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include "linklist.h"
 #include "mem.h"
 
 
