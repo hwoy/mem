@@ -1,4 +1,4 @@
-cc = gcc
+cc = $(CC)
 CFLAGS = -O2 -std=c89 -Wpedantic -Wall -Werror
 bin = mem
 lib = linklist
